@@ -1,0 +1,23 @@
+{
+  "name": "d2f-cli",
+  "version": "1.0.0",
+  "description": "Dump-to-File (D2F) CLI Tool",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "ignore": "^7.0.5",
+    "is-binary-path": "^3.0.0",
+    "neo-blessed": "^0.2.0"
+  },
+  "devDependencies": {
+    "@types/blessed": "^0.1.27",
+    "@types/node": "^25.2.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "type": "commonjs"
+}
