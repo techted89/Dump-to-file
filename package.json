@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Dump-to-File (D2F) CLI Tool",
   "main": "dist/index.js",
+  "bin": {
+    "d2f": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
