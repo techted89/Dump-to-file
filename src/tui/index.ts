@@ -13,11 +13,25 @@ export async function startTUI() {
   layout.screen.render();
 
   const scanner = new CodeScanner(rootDir);
-  await scanner.initialize();
-
   const state = new AppState(rootDir);
-
   const files: string[] = [];
+
+  try {
+    await scanner.initialize();
+
+    layout.statusBox.setContent('{center}Scanning files...{/center}');
+    layout.screen.render();
+
+    // Load files
+    for await (const file of scanner.getFiles()) {
+      files.push(file.path);
+    }
+  } catch (err: unknown) {
+    layout.screen.destroy();
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`Error initializing or scanning: ${message}`);
+    return;
+  }
 
   // Helper for sensitive files
   const isSensitive = (file: string) => {
@@ -27,21 +41,6 @@ export async function startTUI() {
            name.endsWith('.key') ||
            name.includes('secret');
   };
-
-  layout.statusBox.setContent('{center}Scanning files...{/center}');
-  layout.screen.render();
-
-  // Load files
-  try {
-    for await (const file of scanner.getFiles()) {
-      files.push(file.path);
-    }
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    layout.statusBox.setContent(`{center}{red-fg}Error: ${message}{/red-fg}{/center}`);
-    layout.screen.render();
-    return;
-  }
 
   function formatItem(file: string, selected: boolean): string {
     const sensitive = isSensitive(file);
@@ -87,7 +86,7 @@ export async function startTUI() {
   }
 
   // Toggle Selection (Space)
-  const busyFiles = new Set<string>();
+  const inProgress = new Set<string>();
   layout.fileList.key(['space'], async () => {
     const index = layout.fileList.selected;
     const file = files[index];
@@ -102,8 +101,8 @@ export async function startTUI() {
       return;
     }
 
-    if (busyFiles.has(file)) return;
-    busyFiles.add(file);
+    if (inProgress.has(file)) return;
+    inProgress.add(file);
 
     try {
       // Toggle
@@ -116,7 +115,7 @@ export async function startTUI() {
       scheduleUpdateStatus();
       layout.screen.render();
     } finally {
-      busyFiles.delete(file);
+      inProgress.delete(file);
     }
   });
 
@@ -134,7 +133,10 @@ export async function startTUI() {
   });
 
   // Dump (Enter) - Handle both screen and list events
+  let dumpInFlight = false;
   const handleDump = () => {
+    if (dumpInFlight) return;
+
     if (state.selectedFiles.size === 0) {
       layout.statusBox.setContent('{center}{red-fg}No files selected!{/red-fg}{/center}');
       layout.screen.render();
@@ -142,6 +144,7 @@ export async function startTUI() {
       return;
     }
 
+    dumpInFlight = true;
     layout.statusBox.setContent('{center}Generating Snapshot...{/center}');
     layout.screen.render();
 
@@ -154,9 +157,11 @@ export async function startTUI() {
       } catch (e: unknown) {
         const message = e instanceof Error ? e.message : String(e);
         layout.statusBox.setContent(`{center}{red-fg}Error: ${message}{/red-fg}{/center}`);
+      } finally {
+        dumpInFlight = false;
+        layout.screen.render();
+        setTimeout(updateStatus, 3000);
       }
-      layout.screen.render();
-      setTimeout(updateStatus, 3000);
     }, 50);
   };
 
