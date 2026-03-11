@@ -1,9 +1,14 @@
 import blessed from 'neo-blessed';
 import { Widgets } from 'blessed';
 
+export interface BlessedList extends Omit<Widgets.ListElement, 'setItem'> {
+  selected: number;
+  setItem(index: number, content: string | Widgets.BlessedElement): void;
+}
+
 export interface TUILayout {
   screen: Widgets.Screen;
-  fileList: Widgets.ListElement;
+  fileList: BlessedList;
   statusBox: Widgets.BoxElement;
 }
 
@@ -60,5 +65,5 @@ export function createLayout(): TUILayout {
   screen.append(fileList);
   screen.append(statusBox);
 
-  return { screen, fileList, statusBox };
+  return { screen, fileList: fileList as unknown as BlessedList, statusBox };
 }

@@ -26,7 +26,7 @@ export class CodeScanner {
       const gitignorePath = path.join(this.rootDir, '.gitignore');
       const content = await fs.readFile(gitignorePath, 'utf-8');
       this.ig.add(content);
-    } catch (e: unknown) {
+    } catch (e) {
       // No .gitignore or error reading, ignore
     }
   }

@@ -9,7 +9,7 @@ interface FileTree {
 
 export class SnapshotFormatter {
   static estimateTokens(content: string): number {
-    return Math.ceil(Buffer.byteLength(content, 'utf8') / 4);
+    return Math.ceil(content.length / 4);
   }
 
   static async generateSnapshot(
