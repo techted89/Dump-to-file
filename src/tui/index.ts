@@ -36,8 +36,9 @@ export async function startTUI() {
     for await (const file of scanner.getFiles()) {
       files.push(file.path);
     }
-  } catch (err: any) {
-    layout.statusBox.setContent(`{center}{red-fg}Error: ${err.message}{/red-fg}{/center}`);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    layout.statusBox.setContent(`{center}{red-fg}Error: ${message}{/red-fg}{/center}`);
     layout.screen.render();
     return;
   }
@@ -86,6 +87,7 @@ export async function startTUI() {
   }
 
   // Toggle Selection (Space)
+  const busyFiles = new Set<string>();
   layout.fileList.key(['space'], async () => {
     const index = layout.fileList.selected;
     const file = files[index];
@@ -100,15 +102,22 @@ export async function startTUI() {
       return;
     }
 
-    // Toggle
-    await state.toggleFile(file);
+    if (busyFiles.has(file)) return;
+    busyFiles.add(file);
 
-    // Update specific item (optimization)
-    const display = formatItem(file, state.selectedFiles.has(file));
-    layout.fileList.setItem(index, display);
+    try {
+      // Toggle
+      await state.toggleFile(file);
 
-    scheduleUpdateStatus();
-    layout.screen.render();
+      // Update specific item (optimization)
+      const display = formatItem(file, state.selectedFiles.has(file));
+      layout.fileList.setItem(index, display);
+
+      scheduleUpdateStatus();
+      layout.screen.render();
+    } finally {
+      busyFiles.delete(file);
+    }
   });
 
   // Select All (A)
@@ -142,15 +151,15 @@ export async function startTUI() {
         const selectedList = Array.from(state.selectedFiles).sort();
         await SnapshotFormatter.generateSnapshot(rootDir, selectedList);
         layout.statusBox.setContent('{center}{green-fg}Snapshot Saved to d2f_dump.txt!{/green-fg}{/center}');
-      } catch (e: any) {
-        layout.statusBox.setContent(`{center}{red-fg}Error: ${e.message}{/red-fg}{/center}`);
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e);
+        layout.statusBox.setContent(`{center}{red-fg}Error: ${message}{/red-fg}{/center}`);
       }
       layout.screen.render();
       setTimeout(updateStatus, 3000);
     }, 50);
   };
 
-  layout.screen.key(['enter'], handleDump);
   layout.fileList.key(['enter'], handleDump);
 
   // Quit (Q, C-c)

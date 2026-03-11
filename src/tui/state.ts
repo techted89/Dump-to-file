@@ -41,7 +41,7 @@ export class AppState {
     const results = await Promise.all(promises);
     this.totalTokens = results.reduce((acc, val) => acc + val, 0);
 
-    files.forEach(f => this.selectedFiles.add(f));
+    files.forEach(f => { this.selectedFiles.add(f); });
   }
 
   clearSelection() {
