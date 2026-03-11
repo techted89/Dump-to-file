@@ -26,11 +26,8 @@ export class CodeScanner {
       const gitignorePath = path.join(this.rootDir, '.gitignore');
       const content = await fs.readFile(gitignorePath, 'utf-8');
       this.ig.add(content);
-    } catch (e: any) {
-      // Only ignore if file doesn't exist, otherwise warn.
-      if (e.code !== 'ENOENT') {
-        console.warn(`Warning: Could not read .gitignore file:`, e);
-      }
+    } catch (e: unknown) {
+      // No .gitignore or error reading, ignore
     }
   }
 
@@ -71,8 +68,9 @@ export class CodeScanner {
           };
         }
       }
-    } catch (error) {
-      console.error(`Error reading directory ${dir}:`, error);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.error(`Error reading directory ${dir}:`, msg);
     }
   }
 }

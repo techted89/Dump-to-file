@@ -86,13 +86,10 @@ export async function startTUI() {
   }
 
   // Toggle Selection (Space)
-  let toggling = false;
   layout.fileList.key(['space'], async () => {
-    if (toggling) return;
-    toggling = true;
     const index = layout.fileList.selected;
     const file = files[index];
-    if (!file) { toggling = false; return; }
+    if (!file) return;
 
     // Safety check
     if (isSensitive(file)) {
@@ -100,7 +97,6 @@ export async function startTUI() {
       layout.screen.render();
       // Restore status after delay
       setTimeout(scheduleUpdateStatus, 1500);
-      toggling = false;
       return;
     }
 
@@ -113,7 +109,6 @@ export async function startTUI() {
 
     scheduleUpdateStatus();
     layout.screen.render();
-    toggling = false;
   });
 
   // Select All (A)
@@ -155,6 +150,7 @@ export async function startTUI() {
     }, 50);
   };
 
+  layout.screen.key(['enter'], handleDump);
   layout.fileList.key(['enter'], handleDump);
 
   // Quit (Q, C-c)
