@@ -39,3 +39,23 @@ For developers using custom agents with **ChromaDB** or **Vector MMR** memory, D
 To launch the interactive TUI menu:
 ```bash
 d2f
+```
+
+## 🛠️ Build & Run
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Build the project:
+   ```bash
+   npm run build
+   ```
+
+3. Run the CLI:
+   ```bash
+   npm start
+   # or
+   ./dist/index.js
+   ```

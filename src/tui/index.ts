@@ -37,6 +37,21 @@ export async function startTUI() {
       files.push(file.path);
     }
   } catch (err: unknown) {
+    layout.screen.destroy();
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`Error initializing or scanning: ${message}`);
+    return;
+  }
+
+  // Helper for sensitive files
+  const isSensitive = (file: string) => {
+    const name = path.basename(file).toLowerCase();
+    return name.startsWith('.env') ||
+           name.endsWith('.pem') ||
+           name.endsWith('.key') ||
+           name.includes('secret');
+  };
+
     const message = err instanceof Error ? err.message : String(err);
     layout.statusBox.setContent(`{center}{red-fg}Error: ${message}{/red-fg}{/center}`);
     layout.screen.render();
@@ -87,6 +102,7 @@ export async function startTUI() {
   }
 
   // Toggle Selection (Space)
+  const inProgress = new Set<string>();
   layout.fileList.key(['space'], async () => {
     const index = layout.fileList.selected;
     const file = files[index];
