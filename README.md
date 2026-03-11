@@ -54,8 +54,4 @@ d2f
    ```
 
 3. Run the CLI:
-   ```bash
-   npm start
-   # or
-   ./dist/index.js
    ```
