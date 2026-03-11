@@ -150,7 +150,6 @@ export async function startTUI() {
     }, 50);
   };
 
-  layout.screen.key(['enter'], handleDump);
   layout.fileList.key(['enter'], handleDump);
 
   // Quit (Q, C-c)
