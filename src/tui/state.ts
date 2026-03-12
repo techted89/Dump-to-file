@@ -5,6 +5,7 @@ export class AppState {
   selectedFiles: Set<string> = new Set();
   totalTokens: number = 0;
   rootDir: string;
+  private tokenCache: Map<string, number> = new Map();
 
   constructor(rootDir: string) {
     this.rootDir = rootDir;
@@ -45,11 +46,17 @@ export class AppState {
   }
 
   private async estimateFileTokens(filePath: string): Promise<number> {
+    if (this.tokenCache.has(filePath)) {
+      return this.tokenCache.get(filePath)!;
+    }
+
     try {
       const fullPath = path.join(this.rootDir, filePath);
       const stats = await fs.stat(fullPath);
       // Heuristic: 1 token ~= 4 bytes
-      return Math.ceil(stats.size / 4);
+      const tokens = Math.ceil(stats.size / 4);
+      this.tokenCache.set(filePath, tokens);
+      return tokens;
     } catch (e) {
       return 0;
     }
