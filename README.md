@@ -56,10 +56,14 @@ d2f
 3. Run the CLI:
    ```bash
    npm start
+
    ```
 
    **Alternatively, to install and use the `d2f` command globally:**
    ```bash
    npm link
    d2f
+   # or
+   ./dist/index.js
+
    ```

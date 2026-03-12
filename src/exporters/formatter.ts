@@ -3,6 +3,11 @@ import { promises as fsPromises } from 'fs';
 import path from 'path';
 import isBinaryPath from 'is-binary-path';
 
+
+interface FileTree {
+  [key: string]: FileTree;
+}
+
 export class SnapshotFormatter {
   static estimateTokens(content: string): number {
     return Math.ceil(content.length / 4);
@@ -69,7 +74,9 @@ export class SnapshotFormatter {
   }
 
   private static buildTree(files: string[]): string {
-    const root: any = {};
+
+    const root: FileTree = {};
+
 
     for (const file of files) {
       // Normalize path separators to forward slashes for consistency
@@ -87,7 +94,9 @@ export class SnapshotFormatter {
     return this.renderTree(root, '');
   }
 
-  private static renderTree(node: any, prefix: string): string {
+
+  private static renderTree(node: FileTree, prefix: string): string {
+
     let output = '';
     const keys = Object.keys(node).sort((a, b) => {
         // Directories first (heuristic: nodes with children are dirs)

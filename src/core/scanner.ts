@@ -68,8 +68,9 @@ export class CodeScanner {
           };
         }
       }
-    } catch (error) {
-      console.error(`Error reading directory ${dir}:`, error);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.error(`Error reading directory ${dir}:`, msg);
     }
   }
 }

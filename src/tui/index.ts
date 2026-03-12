@@ -36,8 +36,24 @@ export async function startTUI() {
     for await (const file of scanner.getFiles()) {
       files.push(file.path);
     }
-  } catch (err: any) {
-    layout.statusBox.setContent(`{center}{red-fg}Error: ${err.message}{/red-fg}{/center}`);
+  } catch (err: unknown) {
+    layout.screen.destroy();
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`Error initializing or scanning: ${message}`);
+    return;
+  }
+
+  // Helper for sensitive files
+  const isSensitive = (file: string) => {
+    const name = path.basename(file).toLowerCase();
+    return name.startsWith('.env') ||
+           name.endsWith('.pem') ||
+           name.endsWith('.key') ||
+           name.includes('secret');
+  };
+
+    const message = err instanceof Error ? err.message : String(err);
+    layout.statusBox.setContent(`{center}{red-fg}Error: ${message}{/red-fg}{/center}`);
     layout.screen.render();
     return;
   }
@@ -86,6 +102,7 @@ export async function startTUI() {
   }
 
   // Toggle Selection (Space)
+  const inProgress = new Set<string>();
   layout.fileList.key(['space'], async () => {
     const index = layout.fileList.selected;
     const file = files[index];
@@ -142,8 +159,9 @@ export async function startTUI() {
         const selectedList = Array.from(state.selectedFiles).sort();
         await SnapshotFormatter.generateSnapshot(rootDir, selectedList);
         layout.statusBox.setContent('{center}{green-fg}Snapshot Saved to d2f_dump.txt!{/green-fg}{/center}');
-      } catch (e: any) {
-        layout.statusBox.setContent(`{center}{red-fg}Error: ${e.message}{/red-fg}{/center}`);
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e);
+        layout.statusBox.setContent(`{center}{red-fg}Error: ${message}{/red-fg}{/center}`);
       }
       layout.screen.render();
       setTimeout(updateStatus, 3000);

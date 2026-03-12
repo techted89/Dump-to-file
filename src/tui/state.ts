@@ -44,11 +44,6 @@ export class AppState {
     files.forEach(f => this.selectedFiles.add(f));
   }
 
-  clearSelection() {
-    this.selectedFiles.clear();
-    this.totalTokens = 0;
-  }
-
   private async estimateFileTokens(filePath: string): Promise<number> {
     try {
       const fullPath = path.join(this.rootDir, filePath);
