@@ -43,15 +43,10 @@ export async function startTUI() {
     return;
   }
 
-  // Helper for sensitive files
-  const isSensitive = (file: string) => {
-    const name = path.basename(file).toLowerCase();
-    return name.startsWith('.env') ||
-           name.endsWith('.pem') ||
-           name.endsWith('.key') ||
-           name.includes('secret');
-  };
-
+  // Load selection state if needed (not implemented yet)
+  try {
+    // some placeholder logic...
+  } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     layout.statusBox.setContent(`{center}{red-fg}Error: ${message}{/red-fg}{/center}`);
     layout.screen.render();
